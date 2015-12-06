@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.pos.dto.QRResponse;
 import com.pos.entity.Analytics;
 import com.pos.entity.UserDetail;
 import com.pos.entity.UserTags;
@@ -112,7 +113,7 @@ public class ApiController {
 	
 	@RequestMapping(value = "/scanQRCode/{code}", method = RequestMethod.GET)
 	public String scanQRCode(@PathVariable("code") String code) throws JsonGenerationException, JsonMappingException, IOException{
-		UserDetail userDetail = amadeusServices.scanQRCode(code);
+		QRResponse userDetail = amadeusServices.scanQRCode(code);
 		return new ObjectMapper().writeValueAsString(userDetail);
 	}
 }

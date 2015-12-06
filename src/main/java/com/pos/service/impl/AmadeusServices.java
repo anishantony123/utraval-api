@@ -16,6 +16,7 @@ import com.pos.dao.AnalyticsDAO;
 import com.pos.dao.ThresholdInfoDAO;
 import com.pos.dao.UserDetailDAO;
 import com.pos.dao.UserTagsDAO;
+import com.pos.dto.QRResponse;
 import com.pos.entity.Analytics;
 import com.pos.entity.ThresholdInfo;
 import com.pos.entity.UserDetail;
@@ -69,9 +70,10 @@ public class AmadeusServices implements IAmadeusServices{
 		thresholdInfo.setSettedDate(new Date());
 		thresholdInfo.setUsername(username);
 		thresholdInfo.setPropertyCode(propertyCode);
-		thresholdInfoDAO.save(thresholdInfo);
+		thresholdInfo = thresholdInfoDAO.save(thresholdInfo);
 		UserDetail uDetail = userDetailDAO.findOne(username);
-		return uDetail.getQrCode();
+		String result = uDetail.getQrCode() + "&&" +thresholdInfo.getId();
+		return result;
 		
 	}
 
@@ -145,9 +147,39 @@ public class AmadeusServices implements IAmadeusServices{
 	}
 
 	@Override
-	public UserDetail scanQRCode(String code) {
-		List<UserDetail> userDetails = userDetailDAO.findAllByQrCode(code);
-		return userDetails.get(0);
+	public QRResponse scanQRCode(String code) {
+		String[] content = code.split("&&");
+		UserDetail userDetail = userDetailDAO.findOne(content[0]);
+		String lang = "EN";
+		String currency = "USD";
+		String chain = null;
+		BigDecimal maxRate =   new BigDecimal(500);
+		Integer numberOfResult = 20;
+		boolean allRooms = true;
+		boolean showSoldOut = true;
+		String amenity = null;
+		QRResponse qrResponse = new QRResponse();
+		qrResponse.setUsername(userDetail.getUsername());
+		qrResponse.setFirstname(userDetail.getFirstName());
+		qrResponse.setLastname(userDetail.getLastName());
+		
+		ThresholdInfo thresholdInfo = thresholdInfoDAO.findOne(Long.parseLong(content[1]));
+		try {
+			HotelPropertyResponse hotelResponse = defaultApi.hotelPropertyCodeSearch(apiKey, thresholdInfo.getPropertyCode(), thresholdInfo.getCheckIn(), thresholdInfo.getCheckOut(), lang, currency, allRooms, showSoldOut);
+			qrResponse.setAmount(hotelResponse.getTotalPrice().getAmount());
+			qrResponse.setCurrency(hotelResponse.getTotalPrice().getCurrency());
+			qrResponse.setPropertyCode(hotelResponse.getPropertyCode());
+			qrResponse.setPropertyName(hotelResponse.getPropertyName());
+			
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return qrResponse;
+		//List<UserDetail> userDetails = userDetailDAO.findAllByQrCode(code);
+		//return userDetails.get(0);
+		
 	}
 	
 	

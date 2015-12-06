@@ -2,6 +2,7 @@ package com.pos.service;
 
 import java.util.List;
 
+import com.pos.dto.QRResponse;
 import com.pos.entity.Analytics;
 import com.pos.entity.UserDetail;
 import com.pos.entity.UserTags;
@@ -27,7 +28,7 @@ public interface IAmadeusServices {
 
 	void saveUserTags(List<UserTags> userTags);
 
-	UserDetail scanQRCode(String code);
+	QRResponse scanQRCode(String code);
 
 	void performUserAnalytics();
 
