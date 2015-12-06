@@ -73,7 +73,7 @@ public class AmadeusServices implements IAmadeusServices{
 		thresholdInfo = thresholdInfoDAO.save(thresholdInfo);
 		UserDetail uDetail = userDetailDAO.findOne(username);
 		String result = uDetail.getQrCode() + "&&" +thresholdInfo.getId();
-		return result;
+		return "{\"result\":"+result+"}";
 		
 	}
 
